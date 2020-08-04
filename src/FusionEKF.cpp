@@ -65,11 +65,17 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       // TODO: Convert radar from polar to cartesian coordinates 
       //         and initialize state.
 
+      ekf_.x_ << measurement_pack.raw_measurements_(0), measurement_pack.raw_measurements_(1), 
+                  measurement_pack.raw_measurements_(2),measurement_pack.raw_measurements_(3);
+
     }
     else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
       // TODO: Initialize state.
+      ekf_.x_ << measurement_pack.raw_measurements_(0), measurement_pack.raw_measurements_(1), 0, 0;
 
     }
+
+    previous_timestamp_ = measurement_pack.timestamp_;
 
     // done initializing, no need to predict or update
     is_initialized_ = true;
@@ -80,13 +86,41 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
    * Prediction
    */
 
+
   /**
    * TODO: Update the state transition matrix F according to the new elapsed time.
    * Time is measured in seconds.
+   */
+
+  float dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1000000.0;
+  previous_timestamp_ = measurement_pack.timestamp_;
+
+
+  ekf_.F_ = MatrixXd::Identity(4,4);
+
+  ekf_.F_(0,2) = ekf_.F_(1,3) = dt;
+
+  /* 
    * TODO: Update the process noise covariance matrix.
    * Use noise_ax = 9 and noise_ay = 9 for your Q matrix.
    */
 
+  float noise_ax = 9, noise_ay = 9;
+
+  float d2, d3 ,d4;
+
+  d2 = dt * dt;
+  d3 = d2 * dt;
+  d4 = d3 * dt;
+
+  ekf_.Q_ = MatrixXd(4,4);
+
+  ekf_.Q_ << d4/4 * noise_ax, 0, d3/2 * noise_ax, 0,
+             0, d4/4* noise_ay,0, d3/2*noise_ay,
+             d3/2 * noise_ax, 0, d2 * noise_ax, 0,
+             0, d3/2* noise_ay,0, d2 * noise_ay;
+             
+  
   ekf_.Predict();
 
   /**
@@ -101,10 +135,12 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
     // TODO: Radar updates
-
+      // ekf_.x_ << measurement_pack.raw_measurements_(0), measurement_pack.raw_measurements_(1), measurement_pack.raw_measurements_(2), measurement_pack.raw_measurements_(3);
+      // ekf_.Update(ekf_.x_);   
   } else {
     // TODO: Laser updates
-
+      ekf_.x_ << measurement_pack.raw_measurements_(0), measurement_pack.raw_measurements_(1), 0, 0;
+      ekf_.Update(ekf_.x_);
   }
 
   // print the output
