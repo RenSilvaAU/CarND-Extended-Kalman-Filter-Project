@@ -1,5 +1,7 @@
 #include "kalman_filter.h"
 
+#define EPS 0.0001 // A very small number
+
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 
@@ -52,7 +54,35 @@ void KalmanFilter::Update(const VectorXd &z) {
 
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
   /**
-   * TODO: update the state by using Extended Kalman Filter equations
-   */
+  TODO:
+    * update the state by using Extended Kalman Filter equations
+  */
+  double rho     = sqrt(x_(0)*x_(0) + x_(1)*x_(1));
+  double theta   = atan2(x_(1), x_(0));
+  double rho_dot;
 
+  if (fabs(rho) < EPS) {
+    rho_dot = 0;
+  } else {
+    rho_dot = (x_(0)*x_(2) + x_(1)*x_(3)) / rho;
+  }
+
+  VectorXd h = VectorXd(3);
+
+  h << rho, theta, rho_dot;
+
+  VectorXd y = z - h;
+
+  MatrixXd Ht = H_.transpose();
+  MatrixXd S = H_ * P_ * Ht + R_;
+  MatrixXd Si = S.inverse();
+  MatrixXd PHt = P_ * Ht;
+  MatrixXd K = PHt * Si;
+
+  //new estimate
+  x_ = x_ + (K * y);
+  long x_size = x_.size();
+  MatrixXd I = MatrixXd::Identity(x_size, x_size);
+  P_ = (I - K * H_) * P_;
 }
+
