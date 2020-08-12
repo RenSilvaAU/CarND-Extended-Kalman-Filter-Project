@@ -28,6 +28,9 @@ void KalmanFilter::Predict() {
   /**
    * TODO: predict the state
    */
+
+  // DONE
+
   x_ = F_ * x_;
   MatrixXd Ft = F_.transpose();
   P_ = F_ * P_ * Ft + Q_;
@@ -37,6 +40,9 @@ void KalmanFilter::Update(const VectorXd &z) {
   /**
    * TODO: update the state by using Kalman Filter equations
    */
+
+  // DONE
+
   VectorXd z_pred = H_ * x_;
   VectorXd y = z - z_pred;
   MatrixXd Ht = H_.transpose();
@@ -57,8 +63,12 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   TODO:
     * update the state by using Extended Kalman Filter equations
   */
-  double rho     = sqrt(x_(0)*x_(0) + x_(1)*x_(1));
-  double theta   = atan2(x_(1), x_(0));
+
+  // DONE
+
+  // bring data back to pollar coordinates
+  double rho = sqrt(x_(0)*x_(0) + x_(1)*x_(1));
+  double theta = atan2(x_(1), x_(0));
   double rho_dot;
 
   if (fabs(rho) < EPS) {
