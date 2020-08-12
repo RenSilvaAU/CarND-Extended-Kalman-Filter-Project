@@ -71,3 +71,19 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
 
   return Hj;  
 }
+
+
+float Tools::NormAngles(float phi) {
+
+
+    while (phi > M_PI) { 
+        phi -= 2.0 * M_PI;
+    }
+
+    while (phi < -M_PI) { 
+        phi += 2.0 * M_PI;
+    }
+
+    return phi;
+
+} 

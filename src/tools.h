@@ -27,6 +27,9 @@ class Tools {
    */
   Eigen::MatrixXd CalculateJacobian(const Eigen::VectorXd& x_state);
 
+  // angle normalization
+  float NormAngles(float phi);
+
 };
 
 #endif  // TOOLS_H_

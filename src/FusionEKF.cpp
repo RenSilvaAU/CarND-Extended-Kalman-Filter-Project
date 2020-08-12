@@ -84,13 +84,15 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       float phi = measurement_pack.raw_measurements_(1);
       float ro_dot = measurement_pack.raw_measurements_(2);
 
-      while (phi > M_PI) { 
-          phi -= 2.0 * M_PI;
-      }
+      phi = tools.NormAngles(phi);
 
-      while (phi < -M_PI) { 
-          phi += 2.0 * M_PI;
-      }
+      // while (phi > M_PI) { 
+      //     phi -= 2.0 * M_PI;
+      // }
+
+      // while (phi < -M_PI) { 
+      //     phi += 2.0 * M_PI;
+      // }
 
       ekf_.x_ <<  ro * cos(phi),
                   ro * sin(phi),      

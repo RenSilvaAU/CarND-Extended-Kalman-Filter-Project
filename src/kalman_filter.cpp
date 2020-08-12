@@ -1,4 +1,5 @@
 #include "kalman_filter.h"
+#include "tools.h"
 
 #define EPS 0.0001 // A very small number
 
@@ -64,11 +65,12 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
     * update the state by using Extended Kalman Filter equations
   */
 
+  Tools tools;
   // DONE
 
   // bring data back to pollar coordinates
   double rho = sqrt(x_(0)*x_(0) + x_(1)*x_(1));
-  double theta = atan2(x_(1), x_(0));
+  double phi = atan2(x_(1), x_(0));
   double rho_dot;
 
   if (fabs(rho) < EPS) {
@@ -77,11 +79,15 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
     rho_dot = (x_(0)*x_(2) + x_(1)*x_(3)) / rho;
   }
 
+
+
   VectorXd h = VectorXd(3);
 
-  h << rho, theta, rho_dot;
+  h << rho, phi, rho_dot;
 
   VectorXd y = z - h;
+
+  y[1] = tools.NormAngles(y[1]);
 
   MatrixXd Ht = H_.transpose();
   MatrixXd S = H_ * P_ * Ht + R_;
@@ -95,4 +101,6 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   MatrixXd I = MatrixXd::Identity(x_size, x_size);
   P_ = (I - K * H_) * P_;
 }
+
+
 
